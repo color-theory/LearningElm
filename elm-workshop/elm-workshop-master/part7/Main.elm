@@ -29,16 +29,9 @@ searchFeed query =
                 ++ query
                 ++ "+language:elm&sort=stars&order=desc"
 
-        -- HINT: responseDecoder may be useful here.
-        request =
-            "TODO replace this String with a Request built using http://package.elm-lang.org/packages/elm-lang/http/latest/Http#get"
+        request = Http.get url responseDecoder
     in
-    -- TODO replace this Cmd.none with a call to Http.send
-    -- http://package.elm-lang.org/packages/elm-lang/http/latest/Http#send
-    --
-    -- HINT: request and HandleSearchResponse may be useful here.
-    Cmd.none
-
+    Http.send HandleSearchResponse <| request
 
 responseDecoder : Decoder (List SearchResult)
 responseDecoder =
@@ -129,17 +122,20 @@ update msg model =
                     ( { model | results = results }, Cmd.none )
 
                 Err error ->
-                    -- TODO if decoding failed, store the message in model.errorMessage
-                    --
-                    -- HINT 1: Remember, model.errorMessage is a Maybe String - so it
-                    -- can only be set to either Nothing or (Just "some string here")
-                    --
-                    -- Hint 2: look for "decode" in the documentation for this union type:
-                    -- http://package.elm-lang.org/packages/elm-lang/http/latest/Http#Error
-                    --
-                    -- Hint 3: to check if this is working, break responseDecoder
-                    -- by changing "stargazers_count" to "description"
-                    ( model, Cmd.none )
+                    let errorMessage = 
+                        case error of
+                            Http.BadUrl _ ->
+                                "I got a Bad URL error"
+                            Http.Timeout ->
+                                "I got a timeout error"
+                            Http.NetworkError ->
+                                "I got a network error"
+                            Http.BadStatus _ ->
+                                "I got a Bad Status error"
+                            Http.BadPayload _ _ ->
+                                "I got a Bad Payload error"
+                    in
+                        ( { model | errorMessage = Just errorMessage }, Cmd.none )
 
         SetQuery query ->
             ( { model | query = query }, Cmd.none )
