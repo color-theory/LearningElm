@@ -41,9 +41,8 @@ suite =
                             ]
                         )
         , fuzz (list int) "it decodes one SearchResult for each 'item' in the JSON" <|
-            \randomList ->
+            \ids ->
                 let
-                    ids = randomList
                         
                     jsonFromId id =
                         """{"id": """ ++ toString id ++ """, "full_name": "foo", "stargazers_count": 42}"""
