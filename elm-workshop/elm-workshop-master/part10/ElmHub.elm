@@ -81,7 +81,7 @@ viewMinStarsError message =
 
 type Msg
     = Search
-      -- TODO add a constructor for Options OptionsMsg
+    | Options OptionsMsg
     | SetQuery String
     | DeleteById Int
     | HandleSearchResponse (List SearchResult)
@@ -92,9 +92,9 @@ type Msg
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        -- TODO Add a branch for Options which updates model.options
-        --
-        -- HINT: calling updateOptions will save a lot of time here!
+        Options optionsMsg ->
+                ({model | options = updateOptions optionsMsg model.options }, Cmd.none)
+
         Search ->
             ( model, githubSearch (getQueryString model) )
 
@@ -156,7 +156,7 @@ view model =
             , span [ class "tagline" ] [ text "Like GitHub, but for Elm things." ]
             ]
         , div [ class "search" ]
-            [ text "TODO call viewOptions here. Use Html.map to avoid a type mismatch!"
+            [ Html.map Options (viewOptions model.options)
             , div [ class "search-input" ]
                 [ input [ class "search-query", onInput SetQuery, defaultValue model.query ] []
                 , button [ class "search-button", onClick Search ] [ text "Search" ]
